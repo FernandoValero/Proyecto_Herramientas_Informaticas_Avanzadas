@@ -1,0 +1,27 @@
+name: Deploy Application
+
+on:
+  push:
+    branches:
+      - main  # Ejecuta el flujo cuando hay un push en `main`.
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest  # Máquina virtual que ejecutará los pasos.
+
+    steps:
+      # 1. Clonar el código fuente
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # 2. Desplegar en el servidor remoto
+      - name: Deploy to server
+        env:
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+          SERVER_IP: ${{ secrets.SERVER_IP }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          ssh -i ~/.ssh/deploy_key $SERVER_USER@$SERVER_IP "
+            docker pull fernandovalero/backend:latest &&
+            docker pull fernandovalero/frontend:latest &&
+            docker-compose -f /ruta/al/docker-compose.yml up -d"
