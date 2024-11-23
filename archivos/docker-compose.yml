@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: ./tpf-frontend  # Asegúrate de que esta ruta sea correcta
+    ports:
+      - "4200:4200"  # Asegúrate de mapear correctamente el puerto 4200
+    networks:
+      - my-network
+
+  backend:
+    build:
+      context: ./tpf-backend
+    environment:
+      - NODE_ENV=production
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_USER=root  # Usuario de la base de datos
+      - DB_PASSWORD=PVisual23/9-  # Contraseña de la base de datos
+      - DB_NAME=tpf_db_d  # Nombre de la base de datos
+    depends_on:
+      - mysql
+    networks:
+      - my-network
+    ports:
+      - "3000:3000"
+
+  mysql:
+    image: mysql:latest  # Imagen oficial de MySQL
+    environment:
+      MYSQL_ROOT_PASSWORD: PVisual23/9-  # Contraseña del root
+      #MYSQL_USER: root  # Usuario de la base de datos
+      #MYSQL_PASSWORD: PVisual23/9-  # Contraseña de la base de datos
+      MYSQL_DATABASE: tpf_db_d  # Nombre de la base de datos
+    volumes:
+      - mysql-data:/var/lib/mysql  # Volumen persistente para los datos
+    networks:
+      - my-network
+    ports:
+      - "3307:3306"  # Exponer el puerto 3306 para conexiones externas
+
+
+networks:
+  my-network:
+
+volumes:
+  mysql-data:

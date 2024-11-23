@@ -75,17 +75,22 @@ export class AlquilerFormComponent {
   }
 
   public registrarAlquiler() {
-    if(this.local!=null){
-      this.local.alquilado = true;
-      this.modificarLocal(this.local);
-      this.alquiler.local = this.local;
+    if (this.local != null) {
+        this.local.alquilado = true;
+        this.modificarLocal(this.local); // Asegúrate de que esta función realmente actualice el local
+        this.alquiler.local = this.local; // Asignar el local al alquiler
     }
-    this.alquiler.numeroAlquiler=this.numeroAlquiler;
-    this.alquilerService.crearAlquiler(this.alquiler).subscribe(
+
+    this.alquiler.numeroAlquiler = this.numeroAlquiler; // Asegúrate de que el número de alquiler esté definido
+
+    // Obtenemos el JSON adecuado con solo los IDs de usuario y local
+    const alquilerData = this.alquiler.obtenerJson();
+
+    this.alquilerService.crearAlquiler(alquilerData).subscribe(
       (result: any) => {
         this.toastr.success('Alquiler creado');
         console.log(result);
-        this.agregarCuota(this.alquiler);
+        this.agregarCuota(this.alquiler); // Asegúrate de que esta función también reciba correctamente el alquiler
         setTimeout(() => {
           this.router.navigate(['/alquiler-tabla']);
         }, 1000);
@@ -94,7 +99,7 @@ export class AlquilerFormComponent {
         console.log(error);
       }
     );
-  }
+}
 
   public modificarLocal(local: Local ){
     this.localService.modificarLocal(local).subscribe(
@@ -111,7 +116,7 @@ export class AlquilerFormComponent {
     this.alquilerService.obtenerAlquilerById(id).subscribe(
       (result: any) => {
         Object.assign(this.alquiler, result);
-        this.cargarLocal(result.local._id);
+        this.cargarLocal(result.local.id);        
       },
       (error: any) => {
         console.log(error);
@@ -130,19 +135,26 @@ export class AlquilerFormComponent {
   }
 
   public modificarAlquiler(alquilerModificado: Alquiler) {
-    this.modificarLocal(this.alquiler.local);
-    this.alquilerService.modificarAlquiler(alquilerModificado).subscribe(
-      (result) => {
-        if (result.status == 1) {
-          console.log(result);
-          this.toastr.info('Alquiler Modificado');
-          this.router.navigate(['/alquiler-tabla']);
+    console.log("alquilerModificado");
+    console.log(alquilerModificado);
+    if (alquilerModificado.local) {
+      alquilerModificado.localId = alquilerModificado.local.id; // Establecer el localId desde el objeto Local
+      console.log("asigno id alguiler");
+      const localModificado = new Local(); 
+      Object.assign(localModificado, alquilerModificado.local);
+      this.localService.modificarLocal(localModificado).subscribe(
+        (result) => {
+          if (result.status == 1) {
+            this.toastr.info('Alquiler Modificado');
+              this.router.navigate(['/alquiler-tabla']);
+          }
+        },
+        (error) => {
+          console.log(error);
         }
-      },
-      (error) => {
-        console.log(error);
-      }
-    );
+      );
+    }   
+  
   }
 
   public recuperarUsuariosPropietarios(){
@@ -205,8 +217,8 @@ export class AlquilerFormComponent {
           cuota.monto = alquiler.local.costoMes;
         }
         cuota.fechaVencimiento.setDate( cuota.fechaVencimiento.getDate() + 10);
-        console.log("ID Al generar Cuota:", alquiler._id)
-        this.alquilerService.agregarCuota(alquiler._id, cuota).subscribe(
+        console.log("ID Al generar Cuota:", alquiler.id)
+        this.alquilerService.agregarCuota(alquiler.id, cuota).subscribe(
           (result) => {
             console.log(result);
             this.toastr.info('Cuota agregada');

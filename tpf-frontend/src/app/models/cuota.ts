@@ -1,5 +1,5 @@
 export class Cuota {
-    _id!:string;
+    id!:string;
     monto: number;
     fechaCreacion: Date;
     fechaVencimiento: Date;

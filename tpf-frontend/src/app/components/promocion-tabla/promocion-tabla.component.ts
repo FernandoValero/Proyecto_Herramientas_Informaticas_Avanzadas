@@ -27,11 +27,15 @@ export class PromocionTablaComponent {
   public obtenerPromociones(){
     this.promociones = [];
     this.promocionService.getAll().subscribe(
-      (result) => {
-        this.promociones = result;
-        console.log(this.promociones);
+      (result: any) => {
+        let vAlquiler: Promocion = new Promocion();
+        result.forEach((element: any) => {
+          Object.assign(vAlquiler, element);
+          this.promociones.push(vAlquiler);
+          vAlquiler = new Promocion();
+        });
       },
-      (error) => {
+      (error: any) => {
         console.log(error);
       }
     )

@@ -1,6 +1,6 @@
 const Alquiler = require('../models/alquiler');
 const mongoose = require('mongoose');
-const Cuota = require('../models/Cuota');
+const Cuota = require('../models/cuota');
 const QRCode = require('qrcode');
 const alquilerCtrl = {}
 

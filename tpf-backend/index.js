@@ -1,81 +1,68 @@
-const express = require('express'); 
-const cors = require('cors'); 
-const {mongoose} = require('./database');
+//************************* */
+
+// Importar dependencias
+const express = require('express');
+const cors = require('cors');
 const dotenv = require("dotenv");
-const path = require('path');
-const fs = require('fs');
-const pdfController = require('./controllers/pdf.controller');
-const cron = require('node-cron');
-const axios = require('axios'); 
+const sequelize = require('./database'); // Importa sequelize desde tu archivo de configuración
 
-var app = express();
+// Importar modelos
+const Usuario = require('./models_sql/Usuario');
+const Alquiler = require('./models_sql/Alquiler');
+const Local = require('./models_sql/Local');
+const Cuota = require('./models_sql/Cuota');
+const Novedad = require('./models_sql/Novedad');
+const Promocion = require('./models_sql/Promocion');
 
-//middlewares 
-// Ruta para servir archivos estáticos desde la carpeta 'temp'
-app.use('/temp', express.static(path.join(__dirname, 'temp'))); 
-app.use(express.json());
-app.use(cors({origin: 'https://883f-170-84-127-219.ngrok-free.app'}));
+// Establecer las relaciones entre los modelos
 
-//config token
+Alquiler.belongsTo(Usuario, { foreignKey: 'usuarioId', as: 'usuario' });  // Alquiler pertenece a Usuario
+Usuario.hasMany(Alquiler, { foreignKey: 'usuarioId', as: 'alquileres' }); // Usuario tiene muchos Alquileres
+Alquiler.belongsTo(Usuario, { foreignKey: 'usuarioId' });
+Local.hasMany(Alquiler, { foreignKey: 'localId', as: 'alquileres' });
+Alquiler.belongsTo(Local, { foreignKey: 'localId'});
+Alquiler.hasMany(Cuota, { foreignKey: 'alquilerId' });
+Alquiler.hasMany(Promocion, { foreignKey: 'alquilerId', as: 'promociones' });
+Alquiler.hasMany(Novedad, { foreignKey: 'alquilerId', as: 'novedades' }); // Relación con Novedades
+Novedad.belongsTo(Alquiler, { foreignKey: 'alquilerId', as: 'alquiler',onDelete: 'CASCADE' });
+Promocion.belongsTo(Alquiler, { foreignKey: 'alquilerId', as: 'alquiler', onDelete: 'CASCADE' });
+
+// Configuración de express y otros middlewares
+const app = express();
 dotenv.config();
 
-//Cargamos el modulo de direccionamiento de rutas
-//app.use('/api/yyyy', require('./routes/yyyy.route.js'));
+// Middlewares
+app.use(express.json());
+app.use(cors({ origin: 'http://localhost:4200' }));
+
+// Conexión a la base de datos
+sequelize.authenticate() // Verificamos la conexión a la base de datos
+  .then(() => {
+    console.log('Conexión a la base de datos exitosa');
+    
+    // Sincronización de las tablas después de la conexión exitosa
+    sequelize.sync({ alter: true })  // Esto eliminará las tablas existentes y las volverá a crear
+      .then(() => {
+        console.log("Tablas sincronizadas correctamente");
+      })
+      .catch((error) => {
+        console.error("Error al sincronizar tablas", error);
+      });
+  })
+  .catch((err) => {
+    console.error('No se pudo conectar a la base de datos:', err);
+  });
+
+// Aquí seguirían las rutas de tu aplicación y la configuración de la API
 app.use('/api/usuario', require('./routes/usuario.route.js'));
 app.use('/api/alquiler', require('./routes/alquiler.route.js'));
 app.use('/api/local', require('./routes/local.route.js'));
 app.use('/api/novedad', require('./routes/novedad.route.js'));
 app.use('/api/cuota', require('./routes/cuota.route.js'));
 app.use('/api/promocion', require('./routes/promocion.route.js'));
-app.use('/api/mercadopago', require('./routes/mp.route.js'));
-app.use('/api/pdf', require('./routes/pdf.route.js'));
-//setting
-app.set('port', process.env.PORT || 3000);
 
-//Funcion en segundo plano para generar Cuotas
-cron.schedule('0 0 * * *', () => {
-//cron.schedule('*/10 * * * * *', () => { //Cada 10 seg
-    console.log('Verificando cuotas de alquileres');
-
-    //Genera las cuotas necesarias para los alquileres
-    axios.post(' https://b5fb-170-84-127-219.ngrok-free.app/api/alquiler/generarCuotas')
-        .then(response => {
-            console.log('Cuotas Verificadas');
-        })
-        .catch(error => {
-            console.error('Error al verificar cuotas');
-        });
-
-    //Verifica el vencimiento de las cuotas. A las cuotas vencidas se le agrega un 10% de recargo
-    axios.post(' https://b5fb-170-84-127-219.ngrok-free.app/api/alquiler/verificarCuotasVencidas')
-        .then(response => {
-            console.log('Cuotas vencidas Verificadas');
-        })
-        .catch(error => {
-            console.error('Error al verificar cuotas vencidas');
-        });
-}, {
-    scheduled: true,
-    timezone: "America/Argentina/Jujuy"
-});
-// Endpoint para generar y descargar el PDF
-app.post('/api/pdf/generate', (req, res) => {
-    const data = req.body; // Datos para generar el PDF
-  
-    // Llamar a la función del controlador para generar el PDF
-    pdfController.generatePDF(data, (err, pdfFileName) => {
-      if (err) {
-        console.error('Error al generar el PDF:', err);
-        return res.status(500).send('Error al generar el PDF');
-      }
-  
-      // Devolver la URL completa del PDF al frontend
-      const pdfUrl = ` https://b5fb-170-84-127-219.ngrok-free.app/temp/${pdfFileName}`;
-      res.json({ pdfUrl });
-    });
-  });
-
-//starting the server
-app.listen(app.get('port'), () => {
-    console.log(`Servidor iniciado en el puerto`, app.get('port'));
+// Puerto y servidor
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Servidor corriendo en el puerto ${PORT}`);
 });

@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
-const Cuota = require ('./Cuota')
+const Cuota = require ('./cuota')
 const Usuario = require ('./usuario')
 const Local = require ('./local');
 const AlquilerSchema = new Schema({

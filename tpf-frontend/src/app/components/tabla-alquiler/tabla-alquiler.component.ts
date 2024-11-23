@@ -72,21 +72,29 @@ export class TablaAlquilerComponent {
     this.alquileres = new Array();
     if(this.userPerfil() == 'propietario'){
       this.alquilerService.obtenerAlquilerByUsuario(this.loginService.idLogged()!).subscribe(
-        result => {
-          this.alquileres = result;
-          console.log("alquiler por usuario cargado");
+        (result: any) => {
+          let vAlquiler: Alquiler = new Alquiler();
+          result.forEach((element: any) => {
+            Object.assign(vAlquiler, element);
+            this.alquileres.push(vAlquiler);
+            vAlquiler = new Alquiler();
+          });
         },
-        error => {
-          console.log("error: " + error)
+        (error: any) => {
+          console.log(error);
         }
       )
     }else{
       this.alquilerService.obtenerAlquileres().subscribe(
-        (result) => {
-          console.log(result);
-          this.alquileres = result;
+        (result: any) => {
+          let vAlquiler: Alquiler = new Alquiler();
+          result.forEach((element: any) => {
+            Object.assign(vAlquiler, element);
+            this.alquileres.push(vAlquiler);
+            vAlquiler = new Alquiler();
+          });
         },
-        (error) => {
+        (error: any) => {
           console.log(error);
         }
       );
@@ -106,7 +114,7 @@ export class TablaAlquilerComponent {
     this.eliminarPromociones(alquiler);
     this.modificarLocal(alquiler.local);
     this.eliminarCuota(alquiler);
-    this.alquilerService.eliminarAlquiler(alquiler._id).subscribe(
+    this.alquilerService.eliminarAlquiler(alquiler.id).subscribe(
       (result) => {
         console.log(result);
         this.toastr.info('Alquiler eliminado');
@@ -120,12 +128,12 @@ export class TablaAlquilerComponent {
 
   //Eliminar promociones que se hayan registrdo en un alquiler
   public eliminarPromociones(alquiler: Alquiler): void {
-    this.promocionService.getByAlquiler(alquiler._id).subscribe(
+    this.promocionService.getByAlquiler(alquiler.id).subscribe(
       (result) => {
         let promociones: Promocion[] = result;
         this.toastr.info('Promociones Asociadas al alquiler '+alquiler.numeroAlquiler+' eliminadas');
         promociones.forEach(promocion => {
-          this.eliminarPromocion(promocion._id);
+          this.eliminarPromocion(promocion.id);
         });
       },
       (error) => {
@@ -150,13 +158,13 @@ export class TablaAlquilerComponent {
 
   /**Elimina las novedades que se hayan registrado de un alquiler*/
   public eliminarNovedades(alquiler: Alquiler): void{
-    this.novedadService.getByAlquiler(alquiler._id).subscribe(
+    this.novedadService.getByAlquiler(alquiler.id).subscribe(
       (result) => {
         let novedades: Novedad[] = result;
         this.toastr.info('Novedades Asociadas al alquiler ' + alquiler.numeroAlquiler + ' eliminadas');
         novedades.forEach(novedad => {
           novedad.estado='Archivado';
-          this.eliminarNovedad(novedad._id);
+          this.eliminarNovedad(novedad.id);
         });
       },
       (error) => {
@@ -194,7 +202,7 @@ export class TablaAlquilerComponent {
 
   public eliminarCuota(alquiler: Alquiler) {
     for (let i = 0; i < alquiler.cuota.length; i++) {
-      this.cuotaService.eliminarCuota(alquiler.cuota[i]._id).subscribe(
+      this.cuotaService.eliminarCuota(alquiler.cuota[i].id).subscribe(
         (result) => {
           console.log(result);
         },
@@ -208,7 +216,7 @@ export class TablaAlquilerComponent {
 
   public obtenerCuotas(alquiler: Alquiler) {
     this.alquiler = alquiler;
-    this.idAlquilerModal=alquiler._id;
+    this.idAlquilerModal=alquiler.id;
     this.cuotas = new Array<Cuota>();
     this.cuotas = alquiler.cuota;
     for(let c of this.cuotas){
@@ -226,7 +234,7 @@ export class TablaAlquilerComponent {
       (result: any) => {
         Object.assign(alquiler, result);
         cuota.monto = alquiler.local.costoMes;
-        this.alquilerService.agregarCuota(alquiler._id, cuota).subscribe(
+        this.alquilerService.agregarCuota(alquiler.id, cuota).subscribe(
           (result) => {
             console.log(result);
             this.toastr.success('Cuota agregada');
@@ -325,7 +333,7 @@ export class TablaAlquilerComponent {
     cuota.pagado = true;
     //cuota.fechaPago = new Date();
     cuota.medioPago = 'Paypal';
-    this.alquilerService.actualizarCuota(this.idAlquilerModal, cuota._id, cuota).subscribe(
+    this.alquilerService.actualizarCuota(this.idAlquilerModal, cuota.id, cuota).subscribe(
       (response) => {
         console.log('Cuota actualizada correctamente:', response);
         

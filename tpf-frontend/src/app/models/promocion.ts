@@ -1,12 +1,13 @@
 import { Alquiler } from "./alquiler";
 
 export class Promocion {
-    _id!: string;
+    id!: string;
     fechaInicio: Date;
     fechaFin: Date;
     descripcion: string;
     imagen: string;
-    alquiler: Alquiler;
+    alquiler: Alquiler; // Aquí usas el ID de la relación, no el objeto completo
+    alquilerId!: string; // Variable adicional para enviar solo el ID
     disponible: boolean;
 
     constructor(){
@@ -14,7 +15,7 @@ export class Promocion {
         this.fechaFin = new Date();
         this.descripcion = "";
         this.imagen = "";
-        this.alquiler = new Alquiler();
+        this.alquiler=new Alquiler();
         this.disponible = true;
     }
 }
