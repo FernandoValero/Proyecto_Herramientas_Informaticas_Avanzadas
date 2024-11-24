@@ -22,6 +22,7 @@ jobs:
 
       # 3. Actualizar contenedores con docker-compose
       - name: Deploy containers
-        run: |
-          docker-compose -f C:\Users\Fernando\Documents\Facultad\2do Cuatrimestre\Herramientas Informaticas Avanzadas\Trabajo final\Proyecto Final\docker-compose.yml down
-          docker-compose -f C:\Users\Fernando\Documents\Facultad\2do Cuatrimestre\Herramientas Informaticas Avanzadas\Trabajo final\Proyecto Final\docker-compose.yml up -d
+         run: |
+          docker-compose down
+          docker-compose pull
+          docker-compose up -d
