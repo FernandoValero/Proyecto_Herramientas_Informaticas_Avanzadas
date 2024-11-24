@@ -1,7 +1,7 @@
 name: CI/CD Local Deployment
 
 on:
-  push:empujar:
+  push:
     branches:
       - main  # Detecta cambios en la rama principal
 
