@@ -1,46 +1,41 @@
 # Usa una imagen base de Node.js para construir la app
-#FROM node:18 as build
 
-# Establece el directorio de trabajo
-#WORKDIR /app
-
-# Copia los archivos del proyecto
-#COPY package*.json ./
-#RUN npm install
-
-# Copia el resto de los archivos y construye la app
-#COPY . .
-#RUN npm run build -- --output-path=dist
-
-# Usa una imagen de Nginx para servir la app
-#FROM nginx:alpine
-
-# Copia los archivos de construcción a la carpeta de Nginx
-#COPY --from=build /app/dist /usr/share/nginx/html
-
-# Exposición del puerto 80
-#EXPOSE 80
-
-# Nginx inicia automáticamente
-# Usa una imagen base de Node.js para construir la app
-# Usa una imagen base de Node.js
-FROM node:18 as build
-
-# Establece el directorio de trabajo
+# Establecer el directorio de trabajo
 WORKDIR /app
 
-# Copia los archivos del proyecto y instala las dependencias
+# Copiar los archivos necesarios (package.json y package-lock.json)
 COPY package*.json ./
+
+# Instalar las dependencias de Angular
 RUN npm install
 
-# Copia el resto de los archivos del proyecto
+# Copiar el código fuente de la aplicación
 COPY . .
 
-# Expone el puerto 4200
-EXPOSE 4200
+# Construir la aplicación Angular (esto generará los archivos en dist/)
+RUN npm run build --prod
 
-# Ejecuta el servidor de desarrollo de Angular
-#CMD ["npm", "start"]
+# Usar la imagen oficial de Nginx
+FROM nginx:alpine
 
-CMD ["npm", "run", "start", "--", "--host", "0.0.0.0"]
+# Establecer el directorio de trabajo en el contenedor
+WORKDIR /usr/share/nginx/html
+
+# Eliminar los archivos predeterminados de Nginx
+RUN rm -rf ./*
+
+# Copiar la aplicación Angular ya construida (dist) al directorio predeterminado de Nginx
+#COPY ./dist/tpf-frontend/browser ./
+
+# Copiar los archivos construidos de la fase anterior (dist/tpf-frontend/browser)
+COPY --from=build /app/dist/tpf-frontend/browser ./
+
+# Copiar el archivo de configuración de Nginx personalizado (opcional, ver nota abajo)
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Exponer el puerto 80
+EXPOSE 80
+
+# Iniciar Nginx en modo foreground
+CMD ["nginx", "-g", "daemon off;"]
 
