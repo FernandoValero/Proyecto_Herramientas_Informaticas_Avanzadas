@@ -2,14 +2,14 @@ version: '3.8'
 
 services:
   frontend:
-    image: fernandovalero/frontend-imagen:v1  # Asegúrate de que esta ruta sea correcta
+    image: fernandovalero/frontend-imagen:latest  # Asegúrate de que esta ruta sea correcta
     ports:
       - "4200:80"  # Asegúrate de mapear correctamente el puerto 4200
     networks:
       - my-network
 
   backend:
-    image: fernandovalero/backend-imagen:v1
+    image: fernandovalero/backend-imagen:latest
     environment:
       - NODE_ENV=production
       - DB_HOST=mysql
