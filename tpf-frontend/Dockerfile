@@ -1,4 +1,5 @@
-# Usa una imagen base de Node.js para construir la app
+# Usar una imagen de Node.js para construir la aplicación Angular
+FROM node:18 as build
 
 # Establecer el directorio de trabajo
 WORKDIR /app
@@ -38,4 +39,3 @@ EXPOSE 80
 
 # Iniciar Nginx en modo foreground
 CMD ["nginx", "-g", "daemon off;"]
-
