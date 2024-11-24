@@ -26,14 +26,14 @@ jobs:
     - name: Build Frontend Docker Image
       working-directory: ./tpf-frontend
       run: |
-        docker build -t cristian241/frontend-app:${{ github.sha }} .
-        docker tag cristian241/frontend-app:${{ github.sha }} cristian241/frontend-app:latest
+        docker build -t fernandovalero/frontend-app:${{ github.sha }} .
+        docker tag fernandovalero/frontend-app:${{ github.sha }} fernandovalero/frontend-app:latest
 
     # 4. Subir imagen del frontend a Docker Hub
     - name: Push Frontend Docker Image
       run: |
-        docker push cristian241/frontend-app:${{ github.sha }}
-        docker push cristian241/frontend-app:latest
+        docker push fernandovalero/frontend-app:${{ github.sha }}
+        docker push fernandovalero/frontend-app:latest
 
   build-backend:
     name: Build and Deploy Backend
@@ -55,11 +55,11 @@ jobs:
     - name: Build Backend Docker Image
       working-directory: ./tpf-backend
       run: |
-        docker build -t cristian241/backend-app:${{ github.sha }} .
-        docker tag cristian241/backend-app:${{ github.sha }} cristian241/backend-app:latest
+        docker build -t fernandovalero/backend-app:${{ github.sha }} .
+        docker tag fernandovalero/backend-app:${{ github.sha }} fernandovalero/backend-app:latest
 
     # 4. Subir imagen del backend a Docker Hub
     - name: Push Backend Docker Image
       run: |
-        docker push cristian241/backend-app:${{ github.sha }}
-        docker push cristian241/backend-app:latest
+        docker push fernandovalero/backend-app:${{ github.sha }}
+        docker push fernandovalero/backend-app:latest
