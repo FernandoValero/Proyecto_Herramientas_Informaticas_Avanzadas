@@ -1,13 +1,14 @@
 name: CI/CD Local Deployment
 
 on:
-  push:
+  push:empujar:
     branches:
-      - main
+      - main  # Detecta cambios en la rama principal
 
 jobs:
   deploy:
     runs-on: self-hosted  # Usa el runner en tu máquina local
+
     steps:
       # 1. Descargar el código del repositorio
       - name: Checkout code
@@ -16,11 +17,12 @@ jobs:
       # 2. Actualizar imágenes desde Docker Hub
       - name: Pull Docker images
         run: |
-          docker pull fernandovalero/frontend-imagen:v1
-          docker pull fernandovalero/backend-imagen:v1
+          docker pull fernandovalero/frontend-imagen:latest
+          docker pull fernandovalero/backend-imagen:latest
 
       # 3. Actualizar contenedores con el archivo del repositorio
       - name: Deploy containers
         run: |
-          docker-compose down
-          docker-compose up -d
+          docker-compose down --volumes --remove-orphans  
+          docker-compose pull  
+          docker-compose up -d --build  
