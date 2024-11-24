@@ -14,15 +14,36 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # 2. Actualizar imágenes desde Docker Hub
-      - name: Pull Docker images
-        run: |
-          docker pull fernandovalero/frontend-imagen:latest
-          docker pull fernandovalero/backend-imagen:latest
+      # 2. Configurar Docker para usar Docker Hub (si es necesario)
+      - name: Set up Docker
+        uses: docker/setup-buildx-action@v2
 
-      # 3. Actualizar contenedores con el archivo del repositorio
+      # 3. Iniciar sesión en Docker Hub (necesitarás tus credenciales)
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}  # Configura tu nombre de usuario en los secrets de GitHub
+          password: ${{ secrets.DOCKER_PASSWORD }}  # Configura tu contraseña en los secrets de GitHub
+
+      # 4. Construir las imágenes Docker
+      - name: Build Docker images
+        run: |
+          # Construir imagen del frontend
+          docker build -t fernandovalero/frontend-imagen:latest ./path/to/frontend
+          # Construir imagen del backend
+          docker build -t fernandovalero/backend-imagen:latest ./path/to/backend
+
+      # 5. Subir las imágenes a Docker Hub
+      - name: Push Docker images to Docker Hub
+        run: |
+          # Subir imagen del frontend
+          docker push fernandovalero/frontend-imagen:latest
+          # Subir imagen del backend
+          docker push fernandovalero/backend-imagen:latest
+
+      # 6. Actualizar contenedores con el archivo docker-compose
       - name: Deploy containers
         run: |
           docker-compose down --volumes --remove-orphans  
           docker-compose pull  
-          docker-compose up -d --build  
+          docker-compose up -d --build
