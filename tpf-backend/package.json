@@ -25,6 +25,9 @@
     "sqlite3": "^5.1.7"
   },
   "devDependencies": {
-    "nodemon": "^3.1.4"
+    "chai": "^5.1.2",
+    "mocha": "^10.8.2",
+    "nodemon": "^3.1.4",
+    "supertest": "^7.0.0"
   }
 }
