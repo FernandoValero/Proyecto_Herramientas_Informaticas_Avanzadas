@@ -29,9 +29,9 @@ jobs:
       - name: Build Docker images
         run: |
           # Construir imagen del frontend
-          docker build -t fernandovalero/frontend-imagen:latest ./frontend
+          docker build -t fernandovalero/frontend-imagen:latest ./tpf-frontend
           # Construir imagen del backend
-          docker build -t fernandovalero/backend-imagen:latest ./backend
+          docker build -t fernandovalero/backend-imagen:latest ./tpf-backend
 
       # 5. Subir las imágenes a Docker Hub
       - name: Push Docker images to Docker Hub
