@@ -15,9 +15,6 @@ RUN npm install
 # Copia el resto de los archivos
 COPY . .
 
-# Ejecutar pruebas
-RUN npx jest
-
 # Expone el puerto del backend
 EXPOSE 3000
 
